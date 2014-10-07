@@ -141,7 +141,7 @@
         which are orthogonal to the <a>Peripheral</a> and <a>Central</a> BTLE roles.
         GATT allows <a>Server</a>s to expose <a>Service</a>s, whose type is identified by
         a <abbr title="Universally Unique Identifier">UUID</abbr> ([[!RFC4122]]).
-        A <dfn>Service</dfn> exposes a collection of included Services and Characteristics.
+        A <dfn>Service</dfn> exposes a collection of <dfn>Included Service</dfn>s and Characteristics.
         Each <dfn>Characteristic</dfn> has a type named by a UUID and
         exposes a value as an array of bytes,
         some properties to describe how the value can be used, and a collection of Descriptors.
@@ -1064,9 +1064,9 @@
             <dd>
               Fired on a <a>BluetoothGATTService</a>
               <a href="#service-change-events">when its state changes</a>.
-              This involves any characteristics and/or descriptors
-              that get added or removed from the service,
-              as well as "ServiceChanged" notifications from the remote device.
+              This happens when <a>Included Service</a>s, <a>Characteristic</a>s,
+              and/or <a>Descriptor</a>s
+              are added or removed from the service.
             </dd>
 
             <dt><dfn><code>serviceremoved</code></dfn></dt>
@@ -1120,11 +1120,12 @@
           <h2>Responding to Service Changes</h2>
 
           <p>
-            The Bluetooth Attribute Caching system ([[!BLUETOOTH41]] 3.G.2.5.3) allows clients
+            The Bluetooth Attribute Caching system ([[!BLUETOOTH41]] 3.G.2.5.2) allows clients
             to track changes to <a>Service</a>s, <a>Characteristic</a>s, and <a>Descriptor</a>s.
-            Before discovering any of these entities for the purpose of exposing them to a web page,
-            if the Service Changed characteristic ([[!BLUETOOTH41]] 3.G.7.1) exists.
-            the UA MUST subscribe to Indications from it.
+            The UA MUST subscribe to Indications from
+            the Service Changed characteristic ([[!BLUETOOTH41]] 3.G.7.1), if it exists,
+            before discovering Services, Characteristics, and Descriptors
+            that it intends to expose to a web page.
             When the UA receives an Indication on the Service Changed characteristic,
             it MUST perform the following steps.
 
