@@ -2664,7 +2664,6 @@ return navigator.bluetooth.requestDevice({
           <li>
             Take the following actions depending on the <code>Error Code</code>:
             <dl>
-              <dt><code>Invalid Handle</code></dt>
               <dt><code>Invalid PDU</code></dt>
               <dt><code>Invalid Offset</code></dt>
               <dt><code>Attribute Not Found</code></dt>
@@ -2673,6 +2672,21 @@ return navigator.bluetooth.requestDevice({
                 These error codes indicate that something unexpected happened at the protocol layer,
                 likely either due to a UA or device bug.
                 Return a <a>NotSupportedError</a> from the step.
+              </dd>
+
+              <dt><code>Invalid Handle</code></dt>
+              <dd>
+                This can happen if an attribute is removed from the GATT server
+                during another procedure.
+                Usually applications can avoid this error by listening for
+                the <a>servicechanged</a> and <a>serviceremoved</a> events,
+                but there's necessarily a gap between the Bluetooth message reporting a change
+                and the Javascript event communicating it to a web page,
+                in which the web page can start an invalid operation.
+
+                <p>
+                  Return an <a>InvalidStateError</a> from the step.
+                </p>
               </dd>
 
               <dt><code>Invalid Attribute Value Length</code></dt>
@@ -3543,6 +3557,8 @@ return navigator.bluetooth.requestDevice({
                        ><dfn>AbortError</dfn></a></li>
                 <li><a href="https://heycam.github.io/webidl/#invalidmodificationerror"
                        ><dfn>InvalidModificationError</dfn></a></li>
+                <li><a href="https://heycam.github.io/webidl/#invalidstateerror"
+                       ><dfn>InvalidStateError</dfn></a></li>
                 <li><a href="https://heycam.github.io/webidl/#networkerror"
                        ><dfn>NetworkError</dfn></a></li>
                 <li><a href="https://heycam.github.io/webidl/#notfounderror"
