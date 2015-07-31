@@ -1509,7 +1509,7 @@ return navigator.bluetooth.requestDevice({
               For each <var>entry</var> in <var>entries</var>:
               <ol>
                 <li>
-                  If <var>entry</var> has no associated <code>BluetoothGATT*</code> instance
+                  If <var>entry</var> has no associated <code>Promise&lt;BluetoothGATT*></code> instance
                   for the current <a>script execution environment</a>,
                   <a>create a <code>BluetoothGATTService</code>
                   representing</a> <var>entry</var>,
@@ -1527,6 +1527,27 @@ return navigator.bluetooth.requestDevice({
                   for the current <a>script execution environment</a>.
                 </li>
               </ol>
+            </li>
+            <li>
+              Wait for all elements of <var>result</var> to settle.
+            </li>
+            <li>
+              Let <var>updatedEntries</var> be the sequence
+              of known-present cache entries now matching the description.
+            </li>
+            <li>
+              If <var>entries</var> and <var>updatedEntries</var> have different elements,
+              go back to step 3.
+              <p class="note">
+                This can happen if
+                a <a href="#service-change-events">Service Changed indication</a> arrives
+                while the new <code>Promise&lt;BluetoothGATT*></code> instances are settling.
+                The algorithm restarts to make sure the result is consistent with
+                <a>serviceadded</a>, <a>servicechanged</a>, and <a>serviceremoved</a> events
+                that have already been delivered.
+                Service Changed indications are expected to be rare,
+                so this shouldn't cost too much.
+              </p>
             </li>
             <li>
               <a>Resolve</a> <var>promise</var> with the result of
@@ -1559,6 +1580,10 @@ return navigator.bluetooth.requestDevice({
               and abort these steps.
             </li>
             <li>
+              If <var>attribute</var> is known-absent in the <a>Bluetooth cache</a>,
+              return <a>a promise rejected with</a> an <a>InvalidStateError</a>.
+            </li>
+            <li>
               <a>Query the Bluetooth cache</a> for entries that:
               <ul>
                 <li>are within <var>attribute</var>,</li>
@@ -1567,6 +1592,11 @@ return navigator.bluetooth.requestDevice({
                 <li>if the <var>single</var> flag is set, are the first of these.</li>
               </ul>
               Let <var>promise</var> be the result.
+            </li>
+            <li>
+              If <var>attribute</var> has become known-absent in the <a>Bluetooth cache</a>
+              since the first check,
+              return <a>a promise rejected with</a> an <a>InvalidStateError</a>.
             </li>
             <li>
               Return the result of
@@ -2542,6 +2572,12 @@ return navigator.bluetooth.requestDevice({
               If the <a title="same attribute">same</a> <a>Service</a> appears in
               both <var>removedEntities</var> and <var>addedEntities</var>,
               remove it from both, and add it to <var>changedServices</var>.
+            </li>
+            <li>
+              Set each attribute in <var>removedEntities</var> to
+              known-absent in the <a>Bluetooth cache</a>.
+              Set each attribute in <var>addedEntities</var> to
+              known-present in the <a>Bluetooth cache</a>.
             </li>
             <li>
               For each <a>Characteristic</a> and <a>Descriptor</a>
